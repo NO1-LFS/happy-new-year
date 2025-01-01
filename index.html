@@ -167,15 +167,7 @@
     this.theta = 0;
     this.dead = false;
     this.ba = parseInt(getRandom(80, 200));
-
-    var audio = document.getElementsByTagName("audio");
-    for (var i = 0; i < audio.length; i++) {
-      if (audio[i].src.indexOf("shotfire") >= 0 && (audio[i].paused || audio[i].ended)) {
-        audio[i].play();
-        break;
-      }
-    }
-  }
+  };
   Boom.prototype = {
     _paint: function() {
       ctx.save();
@@ -210,57 +202,45 @@
       ctx.restore();
     },
     _boom: function() {
-      var fragNum = getRandom(100, 300);
-      var style = getRandom(0, 10) >= 5 ? 1 : 2;
-      var color;
-      if (style === 1) {
-        color = {
-          a: parseInt(getRandom(128, 255)),
-          b: parseInt(getRandom(128, 255)),
-          c: parseInt(getRandom(128, 255))
+        var fragNum = getRandom(100, 300);
+        var style = getRandom(0, 10) >= 5 ? 1 : 2;
+        var color;
+        if (style === 1) {
+            color = {
+                a: parseInt(getRandom(128, 255)),
+                b: parseInt(getRandom(128, 255)),
+                c: parseInt(getRandom(128, 255))
+            }
         }
-      }
 
-      var fanwei = fragNum;
-      var audio = document.getElementsByTagName("audio");
-      for (var i = 0; i < audio.length; i++) {
-        if (audio[i].src.indexOf("boom") >= 0 && (audio[i].paused || audio[i].ended)) {
-          audio[i].play();
-          break;
+        var fanwei = fragNum;
+        // 播放烟花爆炸声音
+        var audio = document.getElementsByTagName("audio");
+        for (var i = 0; i < audio.length; i++) {
+            if (audio[i].src.indexOf("boom") >= 0 && (audio[i].paused || audio[i].ended)) {
+                audio[i].play();
+                break;
+            }
         }
-      }
-      for (var i = 0; i < fragNum; i++) {
-        if (style === 2) {
-          color = {
-            a: parseInt(getRandom(128, 255)),
-            b: parseInt(getRandom(128, 255)),
-            c: parseInt(getRandom(128, 255))
-          }
+        // 生成烟花碎片
+        for (var i = 0; i < fragNum; i++) {
+            if (style === 2) {
+                color = {
+                    a: parseInt(getRandom(128, 255)),
+                    b: parseInt(getRandom(128, 255)),
+                    c: parseInt(getRandom(128, 255))
+                }
+            }
+            var a = getRandom(-Math.PI, Math.PI);
+            var x = getRandom(0, fanwei) * Math.cos(a) + this.x;
+            var y = getRandom(0, fanwei) * Math.sin(a) + this.y;
+            var radius = getRandom(0, 2)
+            var frag = new Frag(this.x, this.y, radius, color, x, y);
+            this.booms.push(frag);
         }
-        var a = getRandom(-Math.PI, Math.PI);
-        var x = getRandom(0, fanwei) * Math.cos(a) + this.x;
-        var y = getRandom(0, fanwei) * Math.sin(a) + this.y;
-        var radius = getRandom(0, 2)
-        var frag = new Frag(this.x, this.y, radius, color, x, y);
-        this.booms.push(frag);
-      }
-    },
-    _shapBoom: function() {
-      var that = this;
-      putValue(ocas, octx, this.shape, 5, function(dots) {
-        var dx = canvas.width / 2 - that.x;
-        var dy = canvas.height / 2 - that.y;
-        for (var i = 0; i < dots.length; i++) {
-          color = {a: dots[i].a, b: dots[i].b, c: dots[i].c}
-          var x = dots[i].x;
-          var y = dots[i].y;
-          var radius = 1;
-          var frag = new Frag(that.x, that.y, radius, color, x - dx, y - dy);
-          that.booms.push(frag);
-        }
-      })
     }
-  }
+}
+
 
   function putValue(canvas, context, ele, dr, callback) {
     context.clearRect(0, 0, canvas.width, canvas.height);
